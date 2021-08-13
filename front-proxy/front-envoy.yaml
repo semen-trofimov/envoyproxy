@@ -26,6 +26,15 @@ static_resources:
                   prefix: "/service/2"
                 route:
                   cluster: service2
+              - match:
+                  prefix: "/service/kubia"
+                route:
+                  cluster: kubia
+              - match:
+                  prefix: "/service/"
+                route:
+                  cluster: google 
+                  
           http_filters:
           - name: envoy.filters.http.router
 
@@ -54,7 +63,7 @@ static_resources:
               - match:
                   prefix: "/service/2"
                 route:
-                  cluster: service2
+                  cluster: service2 
           http_filters:
           - name: envoy.filters.http.router
 
@@ -147,6 +156,31 @@ static_resources:
               socket_address:
                 address: service2
                 port_value: 8000
+  - name: kubia
+    type: STRICT_DNS
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: grafana
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: kubia
+                port_value: 8080
+  - name: google
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: google
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: www.google.com
+                port_value: 80                     
 admin:
   address:
     socket_address:
